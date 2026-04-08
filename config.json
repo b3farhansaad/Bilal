@@ -1,0 +1,9 @@
+{
+  "token": "PUT_YOUR_BOT_TOKEN",
+  "staffRoleId": "STAFF_ROLE_ID",
+  "ticketNameMatch": "ticket",
+  "sendIntroMessageOnCreate": true,
+  "enforcePreClaimPermissions": true,
+  "enableSlashCommands": false,
+  "guildIdForSlashCommands": ""
+}

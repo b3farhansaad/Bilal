@@ -1,0 +1,13 @@
+{
+  "name": "ticket-claim-bot",
+  "version": "2.1.0",
+  "description": "Discord ticket claim bot: auto-detect ticket channels and lock visibility to claimer + opener",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
+}
