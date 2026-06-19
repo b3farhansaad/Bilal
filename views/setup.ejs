@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>الإعداد الأولي</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:#0d0f1a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.setup-card{background:#161926;border:1px solid #2a2d3e;border-radius:16px;padding:48px 40px;width:100%;max-width:520px;text-align:center}
+.setup-icon{width:80px;height:80px;background:linear-gradient(135deg,#5865F2,#8a43f9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 24px}
+.setup-title{font-size:1.8rem;font-weight:800;margin-bottom:8px}
+.setup-subtitle{color:#8a8f9e;font-size:.9rem;margin-bottom:32px;line-height:1.6}
+.form-group{margin-bottom:20px;text-align:right}
+.form-label{display:block;font-size:.85rem;font-weight:700;color:#c5c8d6;margin-bottom:8px}
+.form-input{width:100%;background:#0d0f1a;border:1px solid #2a2d3e;border-radius:8px;padding:12px 16px;color:#fff;font-family:'Cairo',sans-serif;font-size:.95rem;transition:border-color .2s}
+.form-input:focus{outline:none;border-color:#5865F2}
+.form-input::placeholder{color:#4a4f63}
+.btn-primary{width:100%;background:linear-gradient(135deg,#5865F2,#8a43f9);border:none;border-radius:8px;padding:14px;color:#fff;font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;transition:opacity .2s;margin-top:8px}
+.btn-primary:hover{opacity:.9}
+.alert-error{background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.3);border-radius:8px;padding:12px 16px;color:#ed4245;font-size:.85rem;margin-bottom:20px;text-align:right}
+.info-box{background:rgba(88,101,242,.08);border:1px solid rgba(88,101,242,.2);border-radius:8px;padding:16px;text-align:right;margin-bottom:24px}
+.info-box h4{color:#8a9ff0;font-size:.85rem;margin-bottom:8px}
+.info-box ul{list-style:none;padding:0}
+.info-box li{color:#8a8f9e;font-size:.8rem;padding:3px 0;padding-right:16px;position:relative}
+.info-box li::before{content:'•';position:absolute;right:0;color:#5865F2}
+.token-type{display:flex;gap:8px;margin-bottom:12px}
+.token-type-btn{flex:1;padding:8px;border:1px solid #2a2d3e;border-radius:6px;background:#0d0f1a;color:#8a8f9e;font-family:'Cairo',sans-serif;font-size:.8rem;cursor:pointer;transition:all .2s}
+.token-type-btn.active{border-color:#5865F2;color:#fff;background:rgba(88,101,242,.1)}
+</style>
+</head>
+<body>
+<div class="setup-card">
+  <div class="setup-icon"><i class="fa-brands fa-discord"></i></div>
+  <h1 class="setup-title">الإعداد الأولي</h1>
+  <p class="setup-subtitle">أدخل توكن الديسكورد الخاص بك لبدء تشغيل البوت</p>
+
+  <% if (error) { %>
+  <div class="alert-error"><i class="fa-solid fa-triangle-exclamation"></i> <%= error %></div>
+  <% } %>
+
+  <div class="info-box">
+    <h4><i class="fa-solid fa-circle-info"></i> كيف تحصل على التوكن؟</h4>
+    <ul>
+      <li>بوت عادي: portal.discord.com → Applications → Bot → Token</li>
+      <li>سيلف بوت: من إعدادات المتصفح (Network tab)</li>
+      <li>التوكن لن يُحفظ في أي ملف، يُخزن في قاعدة البيانات فقط</li>
+    </ul>
+  </div>
+
+  <form method="POST" action="/setup">
+    <div class="form-group">
+      <label class="form-label"><i class="fa-solid fa-key"></i> توكن الديسكورد</label>
+      <input type="password" name="token" class="form-input" placeholder="أدخل التوكن هنا..." required autocomplete="off" />
+    </div>
+    <button type="submit" class="btn-primary">
+      <i class="fa-solid fa-rocket"></i> تشغيل البوت
+    </button>
+  </form>
+</div>
+</body>
+</html>

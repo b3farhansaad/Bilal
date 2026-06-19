@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>الإعدادات العامة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-gear"></i> الإعدادات العامة</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="general"/>
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-sliders"></i> إعدادات الأوامر</h3></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">البادئة (Prefix)</label>
+            <input type="text" name="prefix" value="<%= guild.prefix||'!' %>" class="form-input" maxlength="5" placeholder="!"/>
+            <small class="form-hint">البادئة التي تسبق الأوامر</small>
+          </div>
+          <div class="form-group">
+            <label class="form-label">اللغة</label>
+            <select name="language" class="form-select">
+              <option value="ar" <%=guild.language==='ar'?'selected':''%>>🇸🇦 عربي</option>
+              <option value="en" <%=guild.language==='en'?'selected':''%>>🌐 English</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-shield-halved"></i> الرول التلقائي</h3></div>
+      <div class="card-body">
+        <div class="toggle-row">
+          <div><div class="toggle-label">رول تلقائي للأعضاء</div><div class="toggle-sub">يُعطى لكل عضو ينضم للسيرفر</div></div>
+          <label class="toggle-switch"><input type="checkbox" name="autoRoleEnabled" <%=guild.autoRole?.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label">الرول</label>
+          <select name="autoRole" class="form-select">
+            <option value="">-- بدون --</option>
+            <% roles.forEach(r => { %><option value="<%= r.id %>" <%=guild.autoRole?.roleId===r.id?'selected':''%>><%= r.name %></option><% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رول البوتات</label>
+          <select name="botRole" class="form-select">
+            <option value="">-- بدون --</option>
+            <% roles.forEach(r => { %><option value="<%= r.id %>" <%=guild.autoRole?.botRole===r.id?'selected':''%>><%= r.name %></option><% }) %>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const r = await saveSettings('<%= guildId %>', new FormData(e.target));
+  showMsg('msg', r);
+});
+</script>
+</body>
+</html>

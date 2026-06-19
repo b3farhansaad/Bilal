@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>تسجيل الدخول</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Cairo',sans-serif;background:#0d0f1a;color:#fff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:#161926;border:1px solid #2a2d3e;border-radius:16px;padding:48px 40px;width:100%;max-width:440px}
+.login-header{text-align:center;margin-bottom:32px}
+.login-icon{width:72px;height:72px;background:linear-gradient(135deg,#5865F2,#8a43f9);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px}
+.login-title{font-size:1.6rem;font-weight:800;margin-bottom:4px}
+.login-sub{color:#8a8f9e;font-size:.85rem}
+.form-group{margin-bottom:18px}
+.form-label{display:block;font-size:.82rem;font-weight:700;color:#c5c8d6;margin-bottom:6px}
+.input-wrap{position:relative}
+.input-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:#4a4f63;font-size:.9rem}
+.form-input{width:100%;background:#0d0f1a;border:1px solid #2a2d3e;border-radius:8px;padding:11px 40px 11px 16px;color:#fff;font-family:'Cairo',sans-serif;font-size:.9rem;transition:border-color .2s}
+.form-input:focus{outline:none;border-color:#5865F2;background:#0a0c17}
+.form-input::placeholder{color:#4a4f63}
+.btn-login{width:100%;background:linear-gradient(135deg,#5865F2,#8a43f9);border:none;border-radius:8px;padding:13px;color:#fff;font-family:'Cairo',sans-serif;font-size:1rem;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .2s}
+.btn-login:hover{opacity:.9}
+.alert-error{background:rgba(237,66,69,.1);border:1px solid rgba(237,66,69,.3);border-radius:8px;padding:10px 14px;color:#ed4245;font-size:.82rem;margin-bottom:16px}
+</style>
+</head>
+<body>
+<div class="login-card">
+  <div class="login-header">
+    <div class="login-icon"><i class="fa-brands fa-discord"></i></div>
+    <h1 class="login-title">لوحة التحكم</h1>
+    <p class="login-sub">سجّل دخولك للمتابعة</p>
+  </div>
+
+  <% if (error) { %>
+  <div class="alert-error"><i class="fa-solid fa-triangle-exclamation"></i> <%= error %></div>
+  <% } %>
+
+  <form method="POST" action="/login">
+    <input type="hidden" name="redirect" value="<%= redirect || '/dashboard' %>" />
+    <div class="form-group">
+      <label class="form-label">اليوزرنيم</label>
+      <div class="input-wrap">
+        <i class="fa-solid fa-user input-icon"></i>
+        <input type="text" name="username" class="form-input" placeholder="أدخل اليوزرنيم" required autocomplete="username" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">كلمة المرور</label>
+      <div class="input-wrap">
+        <i class="fa-solid fa-lock input-icon"></i>
+        <input type="password" name="password" class="form-input" placeholder="أدخل كلمة المرور" required autocomplete="current-password" />
+      </div>
+    </div>
+    <button type="submit" class="btn-login"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+  </form>
+</div>
+</body>
+</html>

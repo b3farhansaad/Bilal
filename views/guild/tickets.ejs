@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>إعداد التذاكر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-ticket"></i> إعداد التذاكر</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="tickets"/>
+    <% const tk = guild.tickets || {}; %>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-ticket"></i> إعدادات التذاكر</h3>
+        <label class="toggle-switch"><input type="checkbox" name="ticketsEnabled" <%=tk.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">كاتيغوري التذاكر</label>
+            <select name="ticketCategory" class="form-select">
+              <option value="">-- بدون --</option>
+              <%categories.forEach(c=>{%><option value="<%= c.id %>" <%=tk.category===c.id?'selected':''%>><%= c.name %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رول الستاف</label>
+            <select name="ticketStaffRole" class="form-select">
+              <option value="">-- بدون --</option>
+              <%roles.forEach(r=>{%><option value="<%= r.id %>" <%=tk.staffRole===r.id?'selected':''%>><%= r.name %></option><%})%>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">قناة اللوج</label>
+            <select name="ticketLogChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=tk.logChannel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">قناة التدوين (Transcript)</label>
+            <select name="transcriptChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=tk.transcriptChannel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">لون الإيمبيد</label>
+            <input type="color" name="ticketEmbedColor" value="<%= tk.embedColor||'#5865F2' %>" class="form-input" style="height:42px;padding:4px"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الحد الأقصى للتذاكر/عضو</label>
+            <input type="number" name="maxPerUser" value="<%= tk.maxPerUser||1 %>" class="form-input" min="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">إغلاق تلقائي (ساعات، 0=معطل)</label>
+            <input type="number" name="autoClose" value="<%= tk.autoClose||0 %>" class="form-input" min="0"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">عنوان الإيمبيد</label>
+          <input type="text" name="ticketEmbedTitle" value="<%= tk.embedTitle||'🎫 نظام التذاكر' %>" class="form-input"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">وصف الإيمبيد</label>
+          <textarea name="ticketEmbedDescription" class="form-input" rows="2"><%= tk.embedDescription||'اضغط الزر لفتح تذكرة' %></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رسالة الترحيب داخل التذكرة</label>
+          <textarea name="ticketWelcomeMessage" class="form-input" rows="2"><%= tk.welcomeMessage||'مرحباً! كيف يمكننا مساعدتك؟' %></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">تسمية التذاكر</label>
+            <input type="text" name="namingFormat" value="<%= tk.namingFormat||'ticket-{id}' %>" class="form-input" placeholder="ticket-{id} أو {username}-ticket"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">نص زر الفتح</label>
+            <input type="text" name="buttonLabel" value="<%= tk.buttonLabel||'🎫 فتح تذكرة' %>" class="form-input"/>
+          </div>
+        </div>
+        <div class="toggle-row"><div><div class="toggle-label">منشن الستاف عند فتح تذكرة</div></div><label class="toggle-switch"><input type="checkbox" name="pingStaff" <%=tk.pingStaff?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">إغلاق التذكرة عند مغادرة العضو</div></div><label class="toggle-switch"><input type="checkbox" name="closeOnLeave" <%=tk.closeOnLeave?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">زر الحجز (Claim)</div></div><label class="toggle-switch"><input type="checkbox" name="claimEnabled" <%=tk.claimEnabled!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">زر إعادة الفتح</div></div><label class="toggle-switch"><input type="checkbox" name="reopenEnabled" <%=tk.reopenEnabled!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">زر الأولوية</div></div><label class="toggle-switch"><input type="checkbox" name="priorityEnabled" <%=tk.priorityEnabled!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">استخدام المواضيع (Topics)</div></div><label class="toggle-switch"><input type="checkbox" name="useTopics" <%=tk.useTopics?'checked':''%>><span class="toggle-slider"></span></label></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ الإعدادات</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+
+    <!-- Topics -->
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-tags"></i> مواضيع التذاكر</h3></div>
+      <div class="card-body">
+        <% (guild.tickets?.topics||[]).forEach(t => { %>
+        <div class="role-row">
+          <span><%= t.emoji||'📝' %> <%= t.label %></span>
+          <span class="badge badge-muted"><%= t.color||'Primary' %></span>
+          <button type="button" onclick="removeTopic('<%= t.id %>')" class="btn btn-danger-sm"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <% }) %>
+        <hr class="divider"/>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">الإيموجي</label><input type="text" id="topicEmoji" class="form-input" value="📝" style="width:70px"/></div>
+          <div class="form-group" style="flex:2"><label class="form-label">العنوان</label><input type="text" id="topicLabel" class="form-input" placeholder="دعم تقني"/></div>
+          <div class="form-group"><label class="form-label">اللون</label><select id="topicColor" class="form-select"><option>Primary</option><option>Secondary</option><option>Success</option><option>Danger</option></select></div>
+          <div class="form-group" style="align-self:flex-end"><button type="button" onclick="addTopic()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> إضافة</button></div>
+        </div>
+        <div id="topicMsg" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Send Panel -->
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-paper-plane"></i> إرسال بانر التذاكر</h3></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label class="form-label">القناة</label>
+            <select id="panelChannel" class="form-select">
+              <% channels.forEach(c=>{%><option value="<%= c.id %>">#<%= c.name %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group" style="align-self:flex-end">
+            <button type="button" onclick="sendPanel()" class="btn btn-primary"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
+          </div>
+        </div>
+        <div id="panelMsg" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  showMsg('msg', await saveSettings('<%= guildId %>', new FormData(e.target)));
+});
+async function addTopic() {
+  const r = await apiPost('/api/guild/<%= guildId %>/tickets/topics', { label:document.getElementById('topicLabel').value, emoji:document.getElementById('topicEmoji').value, color:document.getElementById('topicColor').value });
+  showMsg('topicMsg', r);
+  if (r.success) setTimeout(()=>location.reload(),800);
+}
+async function removeTopic(id) {
+  const r = await fetch(`/api/guild/<%= guildId %>/tickets/topics/${id}`, {method:'DELETE'});
+  showMsg('topicMsg', await r.json());
+  setTimeout(()=>location.reload(),800);
+}
+async function sendPanel() {
+  const channelId = document.getElementById('panelChannel').value;
+  showMsg('panelMsg', await apiPost('/api/guild/<%= guildId %>/tickets/panel', {channelId}));
+}
+</script>
+</body>
+</html>

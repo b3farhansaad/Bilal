@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>الأوامر</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-terminal"></i> الأوامر</div>
+  </header>
+  <div class="page-content">
+    <%
+    const defaultCmds = [
+      {name:'ping',category:'general',description:'فحص سرعة البوت',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'help',category:'general',description:'قائمة الأوامر',enabled:true,aliases:['مساعدة'],allowedRoles:[]},
+      {name:'botinfo',category:'general',description:'معلومات البوت',enabled:true,aliases:['bi'],allowedRoles:[]},
+      {name:'userinfo',category:'general',description:'معلومات عضو',enabled:true,aliases:['ui'],allowedRoles:[]},
+      {name:'serverinfo',category:'general',description:'معلومات السيرفر',enabled:true,aliases:['si'],allowedRoles:[]},
+      {name:'avatar',category:'general',description:'صورة العضو',enabled:true,aliases:['av'],allowedRoles:[]},
+      {name:'members',category:'general',description:'عدد الأعضاء',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'rank',category:'levels',description:'ترتيبك',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'leaderboard',category:'levels',description:'المتصدرون',enabled:true,aliases:['top','lb'],allowedRoles:[]},
+      {name:'setlevel',category:'levels',description:'تعيين مستوى عضو',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'addxp',category:'levels',description:'إضافة XP',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'removexp',category:'levels',description:'إزالة XP',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'resetxp',category:'levels',description:'إعادة تعيين XP',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'kick',category:'admin',description:'طرد عضو',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'ban',category:'admin',description:'حظر عضو',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'unban',category:'admin',description:'رفع حظر',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'mute',category:'admin',description:'كتم عضو',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'unmute',category:'admin',description:'رفع الكتم',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'warn',category:'admin',description:'تحذير عضو',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'warnings',category:'admin',description:'عرض التحذيرات',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'clearwarns',category:'admin',description:'مسح التحذيرات',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'clear',category:'admin',description:'حذف رسائل',enabled:true,aliases:['purge'],allowedRoles:[]},
+      {name:'slowmode',category:'admin',description:'وضع التهدئة',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'lock',category:'admin',description:'قفل القناة',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'unlock',category:'admin',description:'فتح القناة',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'lockdown',category:'admin',description:'قفل كل القنوات',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'unlockall',category:'admin',description:'فتح كل القنوات',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'nuke',category:'admin',description:'نيوك القناة',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'giverole',category:'admin',description:'إعطاء رول',enabled:true,aliases:['gr'],allowedRoles:[]},
+      {name:'takerole',category:'admin',description:'سحب رول',enabled:true,aliases:['tr'],allowedRoles:[]},
+      {name:'announce',category:'admin',description:'إعلان',enabled:true,aliases:['ann'],allowedRoles:[]},
+      {name:'ticket',category:'ticket',description:'إدارة التذاكر',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'8ball',category:'fun',description:'كرة السحر',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'coinflip',category:'fun',description:'عملة معدنية',enabled:true,aliases:['flip'],allowedRoles:[]},
+      {name:'roll',category:'fun',description:'رمي النرد',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'choose',category:'fun',description:'اختيار عشوائي',enabled:true,aliases:[],allowedRoles:[]},
+      {name:'rps',category:'fun',description:'حجر ورقة مقص',enabled:true,aliases:[],allowedRoles:[]},
+    ];
+    const cmdsData = guild.commands && guild.commands.length ? guild.commands : defaultCmds;
+    const mergedCmds = defaultCmds.map(dc => {
+      const saved = cmdsData.find(c=>c.name===dc.name) || {};
+      return { ...dc, ...saved, name:dc.name, description:dc.description, category:dc.category };
+    });
+    const cats = [...new Set(mergedCmds.map(c=>c.category))];
+    const catLabels = {general:'🌐 عام',admin:'🔨 إدارة',levels:'⭐ مستويات',ticket:'🎫 تذاكر',fun:'🎮 ترفيه'};
+    %>
+
+    <% cats.forEach(cat => { %>
+    <div class="card">
+      <div class="card-header"><h3><%= catLabels[cat]||cat %></h3></div>
+      <div class="card-body p-0">
+        <table class="data-table">
+          <thead><tr><th>الأمر</th><th>الوصف</th><th>الاختصارات</th><th>الرولات المسموحة</th><th>تفعيل</th></tr></thead>
+          <tbody>
+          <% mergedCmds.filter(c=>c.category===cat).forEach(cmd => { %>
+          <tr id="cmd-<%= cmd.name %>">
+            <td><code>!<%= cmd.name %></code></td>
+            <td style="color:#8a8f9e;font-size:.85rem"><%= cmd.description %></td>
+            <td style="font-size:.82rem;color:#8a8f9e"><%= (cmd.aliases||[]).join(', ')||'—' %></td>
+            <td>
+              <select multiple class="form-select-sm" onchange="updateCmd('<%= cmd.name %>',this)" style="min-width:120px;height:auto">
+                <%roles.forEach(r=>{%><option value="<%= r.id %>" <%=(cmd.allowedRoles||[]).includes(r.id)?'selected':''%>><%= r.name %></option><%})%>
+              </select>
+            </td>
+            <td>
+              <label class="toggle-switch" style="margin:0">
+                <input type="checkbox" <%=cmd.enabled?'checked':''%> onchange="toggleCmd('<%= cmd.name %>',this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+            </td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% }) %>
+
+    <!-- Custom Commands -->
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-wand-magic-sparkles"></i> الأوامر المخصصة</h3></div>
+      <div class="card-body">
+        <% if(guild.customCommands&&guild.customCommands.length){ %>
+        <div class="list-group" style="margin-bottom:16px">
+          <% guild.customCommands.forEach(cc => { %>
+          <div class="role-row">
+            <code><%= cc.trigger %></code>
+            <span style="color:#8a8f9e;font-size:.85rem;flex:1;padding:0 12px"><%= cc.response?.substring(0,60) %>...</span>
+            <span class="badge badge-<%= cc.enabled?'success':'muted' %>"><%= cc.enabled?'مفعل':'معطل' %></span>
+            <button type="button" onclick="deleteCustomCmd('<%= cc.trigger %>')" class="btn btn-danger-sm"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+        <hr class="divider"/>
+        <h4 style="margin-bottom:12px;font-size:.9rem">➕ أمر مخصص جديد</h4>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">الكلمة المفتاحية</label><input type="text" id="ccTrigger" class="form-input" placeholder="مرحبا"/></div>
+          <div class="form-group" style="flex:2"><label class="form-label">الرد</label><input type="text" id="ccResponse" class="form-input" placeholder="أهلاً بك {user}!"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="align-self:flex-end"><button type="button" onclick="addCustomCmd()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> إضافة</button></div>
+        </div>
+        <div id="ccMsg" style="display:none"></div>
+      </div>
+    </div>
+    <div id="cmdMsg" style="display:none;margin-top:12px"></div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+async function toggleCmd(name, enabled) {
+  showMsg('cmdMsg', await apiPost('/api/guild/<%= guildId %>/settings', {_section:'command',commandName:name,enabled:enabled?'true':'false'}));
+}
+async function updateCmd(name, select) {
+  const allowedRoles = Array.from(select.selectedOptions).map(o=>o.value);
+  showMsg('cmdMsg', await apiPost('/api/guild/<%= guildId %>/settings', {_section:'command',commandName:name,allowedRoles}));
+}
+async function addCustomCmd() {
+  const trigger = document.getElementById('ccTrigger').value;
+  const response = document.getElementById('ccResponse').value;
+  showMsg('ccMsg', await apiPost('/api/guild/<%= guildId %>/custom-commands', {trigger,response}));
+  if ((await (await fetch('/api/guild/<%= guildId %>/custom-commands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({trigger,response})})).json()).success) setTimeout(()=>location.reload(),800);
+}
+async function deleteCustomCmd(trigger) {
+  const r = await fetch(`/api/guild/<%= guildId %>/custom-commands/${encodeURIComponent(trigger)}`, {method:'DELETE'});
+  showMsg('ccMsg', await r.json());
+  setTimeout(()=>location.reload(),800);
+}
+</script>
+</body>
+</html>

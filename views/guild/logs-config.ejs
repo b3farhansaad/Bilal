@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>إعداد اللوجات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-clipboard-list"></i> إعداد اللوجات</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="logs"/>
+    <% const lg = guild.logs || {}; %>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-clipboard-list"></i> اللوجات</h3>
+        <label class="toggle-switch"><input type="checkbox" name="logsEnabled" <%=lg.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">قناة اللوج الافتراضية</label>
+          <select name="logsChannel" class="form-select">
+            <option value="">-- بدون --</option>
+            <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=lg.channel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+          </select>
+        </div>
+        <small class="form-hint">يمكن تخصيص قناة مختلفة لكل حدث أدناه</small>
+      </div>
+    </div>
+
+    <%
+    const eventGroups = [
+      { title:'👥 أحداث الأعضاء', events:['memberJoin','memberLeave','memberBan','memberUnban','memberKick','memberMute','memberWarn','memberRoleUpdate','memberNickChange'] },
+      { title:'💬 أحداث الرسائل', events:['messageDelete','messageEdit','messageBulkDelete'] },
+      { title:'🎭 أحداث الرولات', events:['roleCreate','roleDelete','roleUpdate'] },
+      { title:'📁 أحداث القنوات', events:['channelCreate','channelDelete','channelUpdate'] },
+      { title:'🔊 أحداث الصوت', events:['voiceJoin','voiceLeave','voiceMove'] },
+      { title:'⚙️ أحداث السيرفر', events:['serverUpdate','inviteCreate','inviteDelete'] },
+    ];
+    const evtLabels = {
+      memberJoin:'انضمام عضو',memberLeave:'مغادرة عضو',memberBan:'حظر',memberUnban:'رفع حظر',memberKick:'طرد',memberMute:'كتم',memberWarn:'تحذير',memberRoleUpdate:'تغيير رول',memberNickChange:'تغيير اسم',
+      messageDelete:'حذف رسالة',messageEdit:'تعديل رسالة',messageBulkDelete:'حذف جماعي',
+      roleCreate:'إنشاء رول',roleDelete:'حذف رول',roleUpdate:'تعديل رول',
+      channelCreate:'إنشاء قناة',channelDelete:'حذف قناة',channelUpdate:'تعديل قناة',
+      voiceJoin:'دخول صوتي',voiceLeave:'مغادرة صوتية',voiceMove:'انتقال صوتي',
+      serverUpdate:'تحديث السيرفر',inviteCreate:'إنشاء دعوة',inviteDelete:'حذف دعوة',
+    };
+    %>
+
+    <% eventGroups.forEach(group => { %>
+    <div class="card">
+      <div class="card-header"><h3><%= group.title %></h3></div>
+      <div class="card-body p-0">
+        <table class="data-table">
+          <thead><tr><th>الحدث</th><th>تفعيل</th><th>القناة</th><th>اللون</th></tr></thead>
+          <tbody>
+          <% group.events.forEach(ev => { const evData = lg[ev] || {}; %>
+          <tr>
+            <td><%= evtLabels[ev]||ev %></td>
+            <td><label class="toggle-switch" style="margin:0"><input type="checkbox" name="<%= ev %>_enabled" <%=evData.enabled!==false?'checked':''%>><span class="toggle-slider"></span></label></td>
+            <td>
+              <select name="<%= ev %>_channel" class="form-select-sm">
+                <option value="">-- افتراضي --</option>
+                <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=evData.channel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+              </select>
+            </td>
+            <td><input type="color" name="<%= ev %>_color" value="<%= evData.embedColor||'#5865F2' %>" style="width:40px;height:32px;border:none;background:none;padding:0;cursor:pointer"/></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% }) %>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ إعدادات اللوجات</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  showMsg('msg', await saveSettings('<%= guildId %>', new FormData(e.target)));
+});
+</script>
+</body>
+</html>

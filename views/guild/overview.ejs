@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title><%= title %></title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-chart-pie"></i> نظرة عامة — <%= guildMeta.name %></div>
+  </header>
+  <div class="page-content">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#5865F2,#8a43f9)"><i class="fa-solid fa-users"></i></div><div class="stat-body"><div class="stat-value"><%= guildMeta.memberCount %></div><div class="stat-label">أعضاء</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FEE75C,#d4a900)"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="stat-body"><div class="stat-value"><%= totalWarnings %></div><div class="stat-label">تحذيرات</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#57F287,#1d9d54)"><i class="fa-solid fa-ticket"></i></div><div class="stat-body"><div class="stat-value"><%= openTickets %></div><div class="stat-label">تذاكر مفتوحة</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#EB459E,#b52070)"><i class="fa-solid fa-star"></i></div><div class="stat-body"><div class="stat-value"><%= totalXpUsers %></div><div class="stat-label">مستخدمو XP</div></div></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><h3><i class="fa-solid fa-circle-info"></i> معلومات السيرفر</h3></div>
+        <div class="card-body">
+          <div class="info-list">
+            <div class="info-row"><span class="info-label">البادئة</span><code><%= guild.prefix||'!' %></code></div>
+            <div class="info-row"><span class="info-label">اللغة</span><span><%= guild.language==='ar'?'🇸🇦 عربي':'🌐 English' %></span></div>
+            <div class="info-row"><span class="info-label">الترحيب</span><span class="badge <%= guild.welcome?.enabled?'badge-success':'badge-muted' %>"><%= guild.welcome?.enabled?'مفعل':'معطل' %></span></div>
+            <div class="info-row"><span class="info-label">AutoMod</span><span class="badge <%= guild.automod?.enabled?'badge-success':'badge-muted' %>"><%= guild.automod?.enabled?'مفعل':'معطل' %></span></div>
+            <div class="info-row"><span class="info-label">المستويات</span><span class="badge <%= guild.leveling?.enabled?'badge-success':'badge-muted' %>"><%= guild.leveling?.enabled?'مفعل':'معطل' %></span></div>
+            <div class="info-row"><span class="info-label">التذاكر</span><span class="badge <%= guild.tickets?.enabled?'badge-success':'badge-muted' %>"><%= guild.tickets?.enabled?'مفعل':'معطل' %></span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3><i class="fa-solid fa-clock-rotate-left"></i> آخر الأحداث</h3></div>
+        <div class="card-body p-0">
+          <% if(recentLogs&&recentLogs.length){ %>
+          <div class="log-list">
+            <% recentLogs.forEach(l => { const c={info:'#5865F2',warning:'#FEE75C',danger:'#ED4245',success:'#57F287'}; %>
+            <div class="log-item">
+              <span class="log-dot" style="background:<%= c[l.severity]||'#5865F2' %>"></span>
+              <div class="log-body">
+                <span class="log-action"><%= l.action %></span>
+                <span class="log-user"><%= l.userTag||l.userId||'—' %></span>
+              </div>
+              <span class="log-time"><%= new Date(l.createdAt).toLocaleTimeString('ar') %></span>
+            </div>
+            <% }) %>
+          </div>
+          <% } else { %><div class="empty-state small"><i class="fa-solid fa-inbox"></i><p>لا توجد أحداث</p></div><% } %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-link"></i> روابط سريعة</h3></div>
+      <div class="card-body">
+        <div style="display:flex;flex-wrap:wrap;gap:10px">
+          <a href="/dashboard/guild/<%= guildId %>/general" class="btn btn-secondary"><i class="fa-solid fa-gear"></i> الإعدادات</a>
+          <a href="/dashboard/guild/<%= guildId %>/welcome" class="btn btn-secondary"><i class="fa-solid fa-hand-wave"></i> الترحيب</a>
+          <a href="/dashboard/guild/<%= guildId %>/automod" class="btn btn-secondary"><i class="fa-solid fa-robot"></i> AutoMod</a>
+          <a href="/dashboard/guild/<%= guildId %>/protection" class="btn btn-secondary"><i class="fa-solid fa-shield-halved"></i> الحماية</a>
+          <a href="/dashboard/guild/<%= guildId %>/leveling" class="btn btn-secondary"><i class="fa-solid fa-star"></i> المستويات</a>
+          <a href="/dashboard/guild/<%= guildId %>/tickets-config" class="btn btn-secondary"><i class="fa-solid fa-ticket"></i> التذاكر</a>
+          <a href="/dashboard/guild/<%= guildId %>/data?tab=logs" class="btn btn-secondary"><i class="fa-solid fa-list-check"></i> اللوجات</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>

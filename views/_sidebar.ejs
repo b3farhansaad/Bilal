@@ -1,0 +1,42 @@
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon"><i class="fa-brands fa-discord"></i></div>
+    <div class="brand-text">
+      <span class="brand-name">Bot Dashboard</span>
+      <span class="brand-sub">Bilal Edition</span>
+    </div>
+  </div>
+
+  <% if (typeof guildId !== 'undefined' && guildId) { %>
+  <div class="guild-info">
+    <% if (guildMeta && guildMeta.icon) { %><img src="<%= guildMeta.icon %>" class="guild-icon" alt=""/>
+    <% } else { %><div class="guild-icon-placeholder"><i class="fa-solid fa-shield-halved"></i></div><% } %>
+    <div class="guild-meta">
+      <span class="guild-name"><%= guildMeta ? guildMeta.name : guildId %></span>
+      <span class="guild-members"><%= guildMeta ? guildMeta.memberCount : 0 %> عضو</span>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/dashboard/guild/<%= guildId %>" class="nav-item <%= activePage==='overview'?'active':'' %>"><i class="fa-solid fa-chart-pie"></i><span>نظرة عامة</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/general" class="nav-item <%= activePage==='general'?'active':'' %>"><i class="fa-solid fa-gear"></i><span>الإعدادات العامة</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/welcome" class="nav-item <%= activePage==='welcome'?'active':'' %>"><i class="fa-solid fa-hand-wave"></i><span>الترحيب والوداع</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/logs-config" class="nav-item <%= activePage==='logs-config'?'active':'' %>"><i class="fa-solid fa-clipboard-list"></i><span>إعداد اللوجات</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/automod" class="nav-item <%= activePage==='automod'?'active':'' %>"><i class="fa-solid fa-robot"></i><span>AutoMod</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/protection" class="nav-item <%= activePage==='protection'?'active':'' %>"><i class="fa-solid fa-shield-halved"></i><span>الحماية</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/leveling" class="nav-item <%= activePage==='leveling'?'active':'' %>"><i class="fa-solid fa-star"></i><span>المستويات</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/tickets-config" class="nav-item <%= activePage==='tickets-config'?'active':'' %>"><i class="fa-solid fa-ticket"></i><span>إعداد التذاكر</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/commands" class="nav-item <%= activePage==='commands'?'active':'' %>"><i class="fa-solid fa-terminal"></i><span>الأوامر</span></a>
+    <div class="nav-divider">البيانات</div>
+    <a href="/dashboard/guild/<%= guildId %>/data?tab=logs" class="nav-item <%= activePage==='data'&&(typeof tab==='undefined'||tab==='logs')?'active':'' %>"><i class="fa-solid fa-list-check"></i><span>اللوجات</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/data?tab=warnings" class="nav-item <%= activePage==='data'&&tab==='warnings'?'active':'' %>"><i class="fa-solid fa-triangle-exclamation"></i><span>التحذيرات</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/data?tab=leaderboard" class="nav-item <%= activePage==='data'&&tab==='leaderboard'?'active':'' %>"><i class="fa-solid fa-trophy"></i><span>المتصدرون</span></a>
+    <a href="/dashboard/guild/<%= guildId %>/data?tab=tickets" class="nav-item <%= activePage==='data'&&tab==='tickets'?'active':'' %>"><i class="fa-regular fa-folder-open"></i><span>التذاكر</span></a>
+  </nav>
+  <% } %>
+
+  <div class="sidebar-footer">
+    <a href="/dashboard" class="nav-item <%= !guildId&&activePage==='home'?'active':'' %>"><i class="fa-solid fa-house"></i><span>السيرفرات</span></a>
+    <a href="/logout" class="nav-item nav-logout"><i class="fa-solid fa-right-from-bracket"></i><span>تسجيل الخروج</span></a>
+  </div>
+</aside>

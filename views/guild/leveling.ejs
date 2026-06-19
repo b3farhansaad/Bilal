@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>المستويات</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-star"></i> نظام المستويات</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="leveling"/>
+    <% const lv = guild.leveling || {}; %>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-star"></i> إعدادات المستويات</h3>
+        <label class="toggle-switch"><input type="checkbox" name="levelingEnabled" <%=lv.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">XP أدنى</label><input type="number" name="xpMin" value="<%= lv.xpMin||10 %>" class="form-input" min="1"/></div>
+          <div class="form-group"><label class="form-label">XP أقصى</label><input type="number" name="xpMax" value="<%= lv.xpMax||25 %>" class="form-input" min="1"/></div>
+          <div class="form-group"><label class="form-label">تبريد (ثواني)</label><input type="number" name="cooldown" value="<%= lv.cooldown||60 %>" class="form-input" min="0"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">إشعار الترقية</label>
+            <select name="announcement" class="form-select">
+              <option value="channel" <%=lv.announcement==='channel'?'selected':''%>>في القناة</option>
+              <option value="levelup" <%=lv.announcement==='levelup'?'selected':''%>>قناة خاصة</option>
+              <option value="dm" <%=lv.announcement==='dm'?'selected':''%>>DM</option>
+              <option value="disabled" <%=lv.announcement==='disabled'?'selected':''%>>معطل</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">قناة الترقية</label>
+            <select name="levelUpChannel" class="form-select">
+              <option value="">-- نفس القناة --</option>
+              <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=lv.levelUpChannel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رسالة الترقية</label>
+          <input type="text" name="levelUpMessage" value="<%= lv.levelUpMessage||'' %>" class="form-input" placeholder="{user} وصل للمستوى {level}!"/>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">رولات بدون XP (IDs)</label><input type="text" name="noXpRoles" value="<%= (lv.noXpRoles||[]).join(',') %>" class="form-input" placeholder="Role IDs..."/></div>
+          <div class="form-group"><label class="form-label">قنوات بدون XP (IDs)</label><input type="text" name="noXpChannels" value="<%= (lv.noXpChannels||[]).join(',') %>" class="form-input" placeholder="Channel IDs..."/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">XP الصوتي (في الدقيقة)</label><input type="number" name="voiceXpPerMin" value="<%= lv.voiceXpPerMin||5 %>" class="form-input" min="1"/></div>
+        </div>
+        <div class="toggle-row"><div><div class="toggle-label">XP الصوتي</div></div><label class="toggle-switch"><input type="checkbox" name="voiceXp" <%=lv.voiceXp?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">دمج رولات المستوى (Stack)</div></div><label class="toggle-switch"><input type="checkbox" name="stackRoles" <%=lv.stackRoles?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">إعادة تعيين XP عند المغادرة</div></div><label class="toggle-switch"><input type="checkbox" name="resetOnLeave" <%=lv.resetOnLeave?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">شريط XP في رسالة الترقية</div></div><label class="toggle-switch"><input type="checkbox" name="showXpBar" <%=lv.showXpBar!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ إعدادات المستويات</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+
+    <!-- Level Roles -->
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-medal"></i> رولات المستويات</h3></div>
+      <div class="card-body">
+        <div id="levelRolesList">
+          <% (guild.leveling?.levelRoles||[]).forEach(lr => { %>
+          <div class="role-row">
+            <span class="badge badge-primary">لفل <%= lr.level %></span>
+            <span><% const role = roles.find(r=>r.id===lr.roleId); %><%= role?role.name:lr.roleId %></span>
+            <button type="button" onclick="removeLevelRole('<%= lr.level %>','<%= lr.roleId %>')" class="btn btn-danger-sm"><i class="fa-solid fa-trash"></i></button>
+          </div>
+          <% }) %>
+        </div>
+        <hr class="divider"/>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">المستوى</label><input type="number" id="lrLevel" class="form-input" min="1" placeholder="مثال: 10"/></div>
+          <div class="form-group"><label class="form-label">الرول</label><select id="lrRole" class="form-select"><option value="">-- اختر --</option><%roles.forEach(r=>{%><option value="<%= r.id %>"><%= r.name %></option><%})%></select></div>
+          <div class="form-group" style="align-self:flex-end"><button type="button" onclick="addLevelRole()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> إضافة</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Multipliers -->
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-xmark"></i> مضاعفات XP</h3></div>
+      <div class="card-body">
+        <% (guild.leveling?.multiplierRoles||[]).forEach(mr => { %>
+        <div class="role-row">
+          <% const r2 = roles.find(r=>r.id===mr.roleId); %>
+          <span><%= r2?r2.name:mr.roleId %></span>
+          <span class="badge badge-primary">×<%= mr.multiplier %></span>
+          <button type="button" onclick="removeMultiplier('<%= mr.roleId %>')" class="btn btn-danger-sm"><i class="fa-solid fa-trash"></i></button>
+        </div>
+        <% }) %>
+        <hr class="divider"/>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">الرول</label><select id="mrRole" class="form-select"><option value="">-- اختر --</option><%roles.forEach(r=>{%><option value="<%= r.id %>"><%= r.name %></option><%})%></select></div>
+          <div class="form-group"><label class="form-label">المضاعف</label><input type="number" id="mrMult" class="form-input" min="1.1" step="0.1" value="2" placeholder="2"/></div>
+          <div class="form-group" style="align-self:flex-end"><button type="button" onclick="addMultiplier()" class="btn btn-primary"><i class="fa-solid fa-plus"></i> إضافة</button></div>
+        </div>
+        <div id="multMsg" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  showMsg('msg', await saveSettings('<%= guildId %>', new FormData(e.target)));
+});
+async function addLevelRole() {
+  const level = document.getElementById('lrLevel').value;
+  const roleId = document.getElementById('lrRole').value;
+  if (!level||!roleId) return;
+  const r = await apiPost('/api/guild/<%= guildId %>/leveling/roles', {level,roleId});
+  showMsg('msg', r);
+  if (r.success) setTimeout(()=>location.reload(),800);
+}
+async function removeLevelRole(level, roleId) {
+  const r = await fetch('/api/guild/<%= guildId %>/leveling/roles', {method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({level,roleId})});
+  showMsg('msg', await r.json());
+  setTimeout(()=>location.reload(),800);
+}
+async function addMultiplier() {
+  const roleId=document.getElementById('mrRole').value, multiplier=document.getElementById('mrMult').value;
+  if (!roleId) return;
+  const r = await apiPost('/api/guild/<%= guildId %>/leveling/multipliers', {roleId,multiplier});
+  showMsg('multMsg', r);
+  if (r.success) setTimeout(()=>location.reload(),800);
+}
+async function removeMultiplier(roleId) {
+  const r = await fetch('/api/guild/<%= guildId %>/leveling/multipliers', {method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({roleId})});
+  showMsg('multMsg', await r.json());
+  setTimeout(()=>location.reload(),800);
+}
+</script>
+</body>
+</html>

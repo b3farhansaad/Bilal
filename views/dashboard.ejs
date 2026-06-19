@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('_sidebar', { guildId: null, guildMeta: null, activePage: 'home', tab: null }) %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-server"></i> السيرفرات</div>
+    <div class="bot-status" id="botStatus"><i class="fa-solid fa-circle fa-xs text-muted"></i> جاري التحقق...</div>
+  </header>
+
+  <div class="page-content">
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#5865F2,#8a43f9)"><i class="fa-solid fa-server"></i></div><div class="stat-body"><div class="stat-value" id="statGuilds">-</div><div class="stat-label">سيرفرات</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#57F287,#1d9d54)"><i class="fa-solid fa-users"></i></div><div class="stat-body"><div class="stat-value" id="statUsers">-</div><div class="stat-label">أعضاء</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#FEE75C,#d4a900)"><i class="fa-solid fa-signal"></i></div><div class="stat-body"><div class="stat-value" id="statPing">-</div><div class="stat-label">البينج</div></div></div>
+      <div class="stat-card"><div class="stat-icon" style="background:linear-gradient(135deg,#EB459E,#b52070)"><i class="fa-solid fa-ticket"></i></div><div class="stat-body"><div class="stat-value" id="statTickets">-</div><div class="stat-label">تذاكر مفتوحة</div></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-server"></i> اختر سيرفراً</h3></div>
+      <div class="card-body">
+        <% if (guilds && guilds.length > 0) { %>
+        <div class="guilds-grid">
+          <% guilds.forEach(g => { %>
+          <a href="/dashboard/guild/<%= g.id %>" class="guild-card">
+            <% if (g.icon) { %><img src="<%= g.icon %>" class="g-icon" alt="<%= g.name %>"/>
+            <% } else { %><div class="g-icon g-icon-placeholder"><%= g.name.charAt(0) %></div><% } %>
+            <div class="g-info">
+              <span class="g-name"><%= g.name %></span>
+              <span class="g-members"><i class="fa-solid fa-users"></i> <%= g.memberCount %></span>
+            </div>
+            <i class="fa-solid fa-chevron-left g-arrow"></i>
+          </a>
+          <% }) %>
+        </div>
+        <% } else { %>
+        <div class="empty-state"><i class="fa-solid fa-satellite-dish"></i><p>البوت غير متصل بأي سيرفر</p><small>تأكد أن التوكن صحيح والبوت مُضاف للسيرفر</small></div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px">
+      <div class="card-header"><h3><i class="fa-solid fa-sliders"></i> إعدادات البوت</h3></div>
+      <div class="card-body">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button onclick="resetToken()" class="btn btn-danger"><i class="fa-solid fa-key"></i> إعادة تعيين التوكن</button>
+        </div>
+        <div id="settingsMsg" style="margin-top:12px;display:none"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/app.js"></script>
+<script>
+async function loadStats() {
+  try {
+    const r = await fetch('/api/bot/stats');
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('statGuilds').textContent = d.guilds;
+      document.getElementById('statUsers').textContent = d.users.toLocaleString();
+      document.getElementById('statPing').textContent = d.ping + 'ms';
+      document.getElementById('statTickets').textContent = d.openTickets;
+      const s = document.getElementById('botStatus');
+      if (d.ready) s.innerHTML = `<i class="fa-solid fa-circle fa-xs" style="color:#57F287"></i> ${d.tag}`;
+      else s.innerHTML = `<i class="fa-solid fa-circle fa-xs" style="color:#ED4245"></i> غير متصل`;
+    }
+  } catch(e) {}
+}
+async function resetToken() {
+  if (!confirm('هل تريد إعادة تعيين التوكن؟ سيوقف البوت!')) return;
+  const r = await fetch('/api/reset-token', {method:'POST',headers:{'Content-Type':'application/json'}});
+  const d = await r.json();
+  const el = document.getElementById('settingsMsg');
+  el.style.display = 'block';
+  el.className = d.success ? 'alert-success' : 'alert-error';
+  el.textContent = d.message;
+  if (d.success) setTimeout(() => location.href = '/setup', 1500);
+}
+loadStats();
+setInterval(loadStats, 30000);
+</script>
+</body>
+</html>

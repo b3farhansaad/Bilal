@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title><%= title %></title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title">
+      <% if(tab==='logs'){%><i class="fa-solid fa-list-check"></i> اللوجات
+      <%}else if(tab==='warnings'){%><i class="fa-solid fa-triangle-exclamation"></i> التحذيرات
+      <%}else if(tab==='leaderboard'){%><i class="fa-solid fa-trophy"></i> المتصدرون
+      <%}else{%><i class="fa-regular fa-folder-open"></i> التذاكر<%}%>
+    </div>
+  </header>
+
+  <div class="page-content">
+    <!-- Tab Nav -->
+    <div class="tabs" style="margin-bottom:20px">
+      <a href="/dashboard/guild/<%= guildId %>/data?tab=logs" class="tab-btn <%= tab==='logs'?'active':'' %>"><i class="fa-solid fa-list-check"></i> اللوجات</a>
+      <a href="/dashboard/guild/<%= guildId %>/data?tab=warnings" class="tab-btn <%= tab==='warnings'?'active':'' %>"><i class="fa-solid fa-triangle-exclamation"></i> التحذيرات</a>
+      <a href="/dashboard/guild/<%= guildId %>/data?tab=leaderboard" class="tab-btn <%= tab==='leaderboard'?'active':'' %>"><i class="fa-solid fa-trophy"></i> المتصدرون</a>
+      <a href="/dashboard/guild/<%= guildId %>/data?tab=tickets" class="tab-btn <%= tab==='tickets'?'active':'' %>"><i class="fa-regular fa-folder-open"></i> التذاكر</a>
+    </div>
+
+    <!-- LOGS -->
+    <% if (tab === 'logs') { %>
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-list-check"></i> اللوجات (<%= total %>)</h3>
+        <form method="GET" style="display:flex;gap:8px;align-items:center">
+          <input type="hidden" name="tab" value="logs"/>
+          <select name="type" onchange="this.form.submit()" class="form-select-sm">
+            <option value="">الكل</option>
+            <option value="moderation" <%=typeFilter==='moderation'?'selected':''%>>إدارة</option>
+            <option value="automod" <%=typeFilter==='automod'?'selected':''%>>AutoMod</option>
+          </select>
+          <select name="severity" onchange="this.form.submit()" class="form-select-sm">
+            <option value="">الكل</option>
+            <option value="info" <%=severityFilter==='info'?'selected':''%>>معلومات</option>
+            <option value="warning" <%=severityFilter==='warning'?'selected':''%>>تحذير</option>
+            <option value="danger" <%=severityFilter==='danger'?'selected':''%>>خطر</option>
+            <option value="success" <%=severityFilter==='success'?'selected':''%>>نجاح</option>
+          </select>
+        </form>
+      </div>
+      <div class="card-body p-0">
+        <% if(logs&&logs.length){ %>
+        <table class="data-table">
+          <thead><tr><th>الحدث</th><th>المستخدم</th><th>التفاصيل</th><th>الوقت</th></tr></thead>
+          <tbody>
+          <% logs.forEach(l => { const colors={info:'#5865F2',warning:'#FEE75C',danger:'#ED4245',success:'#57F287'}; %>
+          <tr>
+            <td><span class="badge" style="background:<%= colors[l.severity]||'#5865F2' %>20;color:<%= colors[l.severity]||'#5865F2' %>;border:1px solid <%= colors[l.severity]||'#5865F2' %>40"><%= l.action %></span></td>
+            <td><%= l.userTag||l.userId||'—' %></td>
+            <td style="color:#8a8f9e;font-size:.82rem"><%= l.reason||l.channelName||'' %></td>
+            <td style="color:#8a8f9e;font-size:.8rem"><%= new Date(l.createdAt).toLocaleString('ar') %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } else { %><div class="empty-state"><i class="fa-solid fa-list"></i><p>لا توجد لوجات</p></div><% } %>
+      </div>
+    </div>
+
+    <!-- WARNINGS -->
+    <% } else if (tab === 'warnings') { %>
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-triangle-exclamation"></i> التحذيرات (<%= total %>)</h3></div>
+      <div class="card-body p-0">
+        <% if(warnings&&warnings.length){ %>
+        <table class="data-table">
+          <thead><tr><th>العضو</th><th>السبب</th><th>بواسطة</th><th>الوقت</th></tr></thead>
+          <tbody>
+          <% warnings.forEach(w => { %>
+          <tr>
+            <td><strong><%= w.userTag||w.userId %></strong></td>
+            <td><%= w.reason||'لا يوجد سبب' %></td>
+            <td style="color:#8a8f9e"><%= w.moderatorTag||'System' %></td>
+            <td style="color:#8a8f9e;font-size:.8rem"><%= new Date(w.createdAt).toLocaleString('ar') %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } else { %><div class="empty-state"><i class="fa-solid fa-triangle-exclamation"></i><p>لا توجد تحذيرات</p></div><% } %>
+      </div>
+    </div>
+
+    <!-- LEADERBOARD -->
+    <% } else if (tab === 'leaderboard') { %>
+    <div class="card">
+      <div class="card-header"><h3><i class="fa-solid fa-trophy"></i> المتصدرون (<%= total %>)</h3></div>
+      <div class="card-body p-0">
+        <% if(levels&&levels.length){ %>
+        <table class="data-table">
+          <thead><tr><th>#</th><th>العضو</th><th>المستوى</th><th>XP</th></tr></thead>
+          <tbody>
+          <% levels.forEach((l,i) => { const rank=startRank+i+1; const medals=['🥇','🥈','🥉']; %>
+          <tr>
+            <td><strong style="color:<%= rank===1?'#FFD700':rank===2?'#C0C0C0':rank===3?'#CD7F32':'#fff' %>"><%= medals[rank-1]||rank %></strong></td>
+            <td style="display:flex;align-items:center;gap:8px;padding:10px 16px">
+              <% if(l.avatar){%><img src="<%= l.avatar %>" style="width:32px;height:32px;border-radius:50%"/><% } %>
+              <span><%= l.userTag||l.userId %></span>
+            </td>
+            <td><span class="badge" style="background:#5865F220;color:#8a9ff0;border:1px solid #5865F240">Lv. <%= l.level %></span></td>
+            <td><code><%= l.xp.toLocaleString() %> XP</code></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } else { %><div class="empty-state"><i class="fa-solid fa-trophy"></i><p>لا توجد بيانات XP</p></div><% } %>
+      </div>
+    </div>
+
+    <!-- TICKETS -->
+    <% } else if (tab === 'tickets') { %>
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-regular fa-folder-open"></i> التذاكر (<%= total %>)</h3>
+        <form method="GET" style="display:flex;gap:8px">
+          <input type="hidden" name="tab" value="tickets"/>
+          <select name="status" onchange="this.form.submit()" class="form-select-sm">
+            <option value="">الكل</option>
+            <option value="open" <%=statusFilter==='open'?'selected':''%>>مفتوح</option>
+            <option value="closed" <%=statusFilter==='closed'?'selected':''%>>مغلق</option>
+          </select>
+        </form>
+      </div>
+      <div class="card-body p-0">
+        <% if(tickets&&tickets.length){ %>
+        <table class="data-table">
+          <thead><tr><th>#</th><th>العضو</th><th>الموضوع</th><th>الحالة</th><th>الأولوية</th><th>الوقت</th></tr></thead>
+          <tbody>
+          <% tickets.forEach(t => { const sc={open:'#57F287',closed:'#ED4245',deleted:'#8a8f9e'}; const pc={urgent:'#ED4245',high:'#FEE75C',normal:'#5865F2',low:'#8a8f9e'}; %>
+          <tr>
+            <td><code>#<%= String(t.ticketId).padStart(4,'0') %></code></td>
+            <td><%= t.userTag||t.userId %></td>
+            <td><%= t.topic||'عام' %></td>
+            <td><span class="badge" style="background:<%= sc[t.status]||'#5865F2' %>20;color:<%= sc[t.status]||'#5865F2' %>;border:1px solid <%= sc[t.status]||'#5865F2' %>40"><%= t.status==='open'?'مفتوح':t.status==='closed'?'مغلق':'محذوف' %></span></td>
+            <td><span class="badge" style="background:<%= pc[t.priority]||'#5865F2' %>20;color:<%= pc[t.priority]||'#5865F2' %>;border:1px solid <%= pc[t.priority]||'#5865F2' %>40"><%= t.priority==='urgent'?'عاجل':t.priority==='high'?'عالي':t.priority==='low'?'منخفض':'عادي' %></span></td>
+            <td style="color:#8a8f9e;font-size:.8rem"><%= new Date(t.createdAt).toLocaleString('ar') %></td>
+          </tr>
+          <% }) %>
+          </tbody>
+        </table>
+        <% } else { %><div class="empty-state"><i class="fa-regular fa-folder-open"></i><p>لا توجد تذاكر</p></div><% } %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% for(let p=1;p<=totalPages;p++){%>
+      <a href="?tab=<%= tab %>&page=<%= p %>" class="page-btn <%= p===page?'active':'' %>"><%= p %></a>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>الحماية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-shield-halved"></i> الحماية</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="protection"/>
+    <% const p = guild.protection || {}; %>
+
+    <!-- Anti Nuke -->
+    <div class="card">
+      <div class="card-header"><h3>💣 Anti Nuke</h3><label class="toggle-switch"><input type="checkbox" name="antiNukeEnabled" <%=p.antiNuke?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">حد الحظر</label><input type="number" name="nukeBanThreshold" value="<%= p.antiNuke?.banThreshold||5 %>" class="form-input" min="1"/></div>
+          <div class="form-group"><label class="form-label">حد الطرد</label><input type="number" name="nukeKickThreshold" value="<%= p.antiNuke?.kickThreshold||5 %>" class="form-input" min="1"/></div>
+          <div class="form-group"><label class="form-label">حد حذف القنوات</label><input type="number" name="nukeChannelThreshold" value="<%= p.antiNuke?.channelDeleteThreshold||3 %>" class="form-input" min="1"/></div>
+          <div class="form-group"><label class="form-label">حد حذف الرولات</label><input type="number" name="nukeRoleThreshold" value="<%= p.antiNuke?.roleDeleteThreshold||3 %>" class="form-input" min="1"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الإجراء</label>
+            <select name="nukeAction" class="form-select">
+              <option value="derank" <%=p.antiNuke?.action==='derank'?'selected':''%>>سحب الصلاحيات</option>
+              <option value="kick" <%=p.antiNuke?.action==='kick'?'selected':''%>>طرد</option>
+              <option value="ban" <%=p.antiNuke?.action==='ban'?'selected':''%>>حظر</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">قناة اللوج</label>
+            <select name="nukeLogChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=p.antiNuke?.logChannel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">القائمة البيضاء (IDs بفاصلة)</label>
+          <input type="text" name="antiNukeWhitelist" class="form-input" value="<%= (p.antiNuke?.whitelist||[]).join(',') %>" placeholder="User ID, User ID..."/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Bot -->
+    <div class="card">
+      <div class="card-header"><h3>🤖 Anti Bot</h3><label class="toggle-switch"><input type="checkbox" name="antiBotEnabled" <%=p.antiBot?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الإجراء</label>
+            <select name="antiBotAction" class="form-select">
+              <option value="kick" <%=p.antiBot?.action==='kick'?'selected':''%>>طرد</option>
+              <option value="ban" <%=p.antiBot?.action==='ban'?'selected':''%>>حظر</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">استثناءات (Bot IDs)</label>
+            <input type="text" name="antiBotWhitelist" class="form-input" value="<%= (p.antiBot?.whitelist||[]).join(',') %>" placeholder="Bot ID, Bot ID..."/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Alt -->
+    <div class="card">
+      <div class="card-header"><h3>👤 Anti Alt</h3><label class="toggle-switch"><input type="checkbox" name="antiAltEnabled" <%=p.antiAlt?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الحد الأدنى لعمر الحساب (أيام)</label>
+            <input type="number" name="antiAltMinAge" value="<%= p.antiAlt?.minAge||7 %>" class="form-input" min="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الإجراء</label>
+            <select name="antiAltAction" class="form-select">
+              <option value="kick" <%=p.antiAlt?.action==='kick'?'selected':''%>>طرد</option>
+              <option value="ban" <%=p.antiAlt?.action==='ban'?'selected':''%>>حظر</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">رسالة الطرد</label>
+          <input type="text" name="antiAltMessage" value="<%= p.antiAlt?.kickMessage||'' %>" class="form-input" placeholder="حسابك جديد جداً! الحد الأدنى {days} أيام"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verify System -->
+    <div class="card">
+      <div class="card-header"><h3>✅ نظام التحقق</h3><label class="toggle-switch"><input type="checkbox" name="verifyEnabled" <%=p.verifySystem?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">قناة التحقق</label>
+            <select name="verifyChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <%channels.forEach(c=>{%><option value="<%= c.id %>" <%=p.verifySystem?.channel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رول التحقق</label>
+            <select name="verifyRole" class="form-select">
+              <option value="">-- بدون --</option>
+              <%roles.forEach(r=>{%><option value="<%= r.id %>" <%=p.verifySystem?.role===r.id?'selected':''%>><%= r.name %></option><%})%>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">لون الإيمبيد</label>
+            <input type="color" name="verifyEmbedColor" value="<%= p.verifySystem?.embedColor||'#5865F2' %>" class="form-input" style="height:42px;padding:4px"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">عنوان الإيمبيد</label>
+            <input type="text" name="verifyEmbedTitle" value="<%= p.verifySystem?.embedTitle||'✅ التحقق' %>" class="form-input"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الرسالة</label>
+          <textarea name="verifyMessage" class="form-input" rows="2" placeholder="اضغط الزر للتحقق والوصول للسيرفر"><%= p.verifySystem?.message||'' %></textarea>
+        </div>
+        <button type="button" onclick="sendVerify()" class="btn btn-secondary"><i class="fa-solid fa-paper-plane"></i> إرسال رسالة التحقق</button>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ الحماية</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  showMsg('msg', await saveSettings('<%= guildId %>', new FormData(e.target)));
+});
+async function sendVerify() {
+  showMsg('msg', await apiPost('/api/guild/<%= guildId %>/verify/send', {}));
+}
+</script>
+</body>
+</html>

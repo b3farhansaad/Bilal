@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>الترحيب والوداع</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-hand-wave"></i> الترحيب والوداع</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="welcome"/>
+
+    <!-- Welcome -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-door-open"></i> رسالة الترحيب</h3>
+        <label class="toggle-switch"><input type="checkbox" name="welcomeEnabled" <%=guild.welcome?.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">قناة الترحيب</label>
+            <select name="welcomeChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <% channels.forEach(c => { %><option value="<%= c.id %>" <%=guild.welcome?.channel===c.id?'selected':''%>>#<%= c.name %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">لون الإيمبيد</label>
+            <input type="color" name="embedColor" value="<%= guild.welcome?.embedColor||'#5865F2' %>" class="form-input" style="height:42px;padding:4px"/>
+          </div>
+        </div>
+        <div class="toggle-row"><div><div class="toggle-label">إيمبيد</div></div><label class="toggle-switch"><input type="checkbox" name="embedEnabled" <%=guild.welcome?.embedEnabled!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">منشن العضو</div></div><label class="toggle-switch"><input type="checkbox" name="mentionUser" <%=guild.welcome?.mentionUser!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">صورة العضو (Thumbnail)</div></div><label class="toggle-switch"><input type="checkbox" name="embedThumbnail" <%=guild.welcome?.embedThumbnail!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="toggle-row"><div><div class="toggle-label">عرض رقم الانضمام</div></div><label class="toggle-switch"><input type="checkbox" name="showJoinPosition" <%=guild.welcome?.showJoinPosition?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label">عنوان الإيمبيد</label>
+          <input type="text" name="embedTitle" value="<%= guild.welcome?.embedTitle||'👋 مرحباً!' %>" class="form-input"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">وصف الإيمبيد</label>
+          <textarea name="embedDescription" class="form-input" rows="3"><%= guild.welcome?.embedDescription||'أهلاً {user}!' %></textarea>
+          <small class="form-hint">المتغيرات: {user} {username} {server} {count}</small>
+        </div>
+        <div class="form-group">
+          <label class="form-label">تذييل الإيمبيد</label>
+          <input type="text" name="embedFooter" value="<%= guild.welcome?.embedFooter||'' %>" class="form-input" placeholder="انضم كـ عضو رقم {count}"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">صورة كبيرة (URL)</label>
+          <input type="text" name="embedImage" value="<%= guild.welcome?.embedImage||'' %>" class="form-input" placeholder="https://..."/>
+        </div>
+        <hr class="divider"/>
+        <div class="toggle-row"><div><div class="toggle-label">رسالة DM</div><div class="toggle-sub">إرسال رسالة خاصة للعضو عند الانضمام</div></div><label class="toggle-switch"><input type="checkbox" name="dmEnabled" <%=guild.welcome?.dmEnabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="form-group" style="margin-top:12px">
+          <label class="form-label">محتوى DM</label>
+          <textarea name="dmMessage" class="form-input" rows="2" placeholder="مرحباً بك في {server}!"><%= guild.welcome?.dmMessage||'' %></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Goodbye -->
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-door-closed"></i> رسالة الوداع</h3>
+        <label class="toggle-switch"><input type="checkbox" name="goodbyeEnabled" <%=guild.goodbye?.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">قناة الوداع</label>
+            <select name="goodbyeChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <% channels.forEach(c => { %><option value="<%= c.id %>" <%=guild.goodbye?.channel===c.id?'selected':''%>>#<%= c.name %></option><% }) %>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">لون الإيمبيد</label>
+            <input type="color" name="goodbyeEmbedColor" value="<%= guild.goodbye?.embedColor||'#ED4245' %>" class="form-input" style="height:42px;padding:4px"/>
+          </div>
+        </div>
+        <div class="toggle-row"><div><div class="toggle-label">إيمبيد</div></div><label class="toggle-switch"><input type="checkbox" name="goodbyeEmbedEnabled" <%=guild.goodbye?.embedEnabled!==false?'checked':''%>><span class="toggle-slider"></span></label></div>
+        <div class="form-group" style="margin-top:16px">
+          <label class="form-label">عنوان الإيمبيد</label>
+          <input type="text" name="goodbyeEmbedTitle" value="<%= guild.goodbye?.embedTitle||'👋 مع السلامة' %>" class="form-input"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">وصف الإيمبيد</label>
+          <textarea name="goodbyeEmbedDescription" class="form-input" rows="2"><%= guild.goodbye?.embedDescription||'وداعاً **{user}**!' %></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">التذييل</label>
+          <input type="text" name="goodbyeEmbedFooter" value="<%= guild.goodbye?.embedFooter||'' %>" class="form-input" placeholder="كان عضواً لـ {duration}"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+      <button type="button" onclick="sendTest('welcome')" class="btn btn-secondary"><i class="fa-solid fa-paper-plane"></i> اختبار الترحيب</button>
+      <button type="button" onclick="sendTest('goodbye')" class="btn btn-secondary"><i class="fa-solid fa-paper-plane"></i> اختبار الوداع</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  showMsg('msg', await saveSettings('<%= guildId %>', new FormData(e.target)));
+});
+async function sendTest(type) {
+  const r = await apiPost('/api/guild/<%= guildId %>/welcome/test', {type});
+  showMsg('msg', r);
+}
+</script>
+</body>
+</html>

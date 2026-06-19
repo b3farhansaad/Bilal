@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>AutoMod</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<link rel="stylesheet" href="/css/style.css"/>
+</head>
+<body>
+<%- include('../_sidebar') %>
+<div class="main-content">
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+    <div class="topbar-title"><i class="fa-solid fa-robot"></i> AutoMod</div>
+  </header>
+  <div class="page-content">
+    <form id="settingsForm">
+    <input type="hidden" name="_section" value="automod"/>
+
+    <div class="card">
+      <div class="card-header">
+        <h3><i class="fa-solid fa-robot"></i> الإعدادات العامة</h3>
+        <label class="toggle-switch"><input type="checkbox" name="automodEnabled" <%=guild.automod?.enabled?'checked':''%>><span class="toggle-slider"></span></label>
+      </div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">قناة اللوج</label>
+            <select name="automodLogChannel" class="form-select">
+              <option value="">-- بدون --</option>
+              <% channels.forEach(c=>{%><option value="<%= c.id %>" <%=guild.automod?.logChannel===c.id?'selected':''%>>#<%= c.name %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">رول الكتم (Mute)</label>
+            <select name="muteRole" class="form-select">
+              <option value="">-- بدون --</option>
+              <% roles.forEach(r=>{%><option value="<%= r.id %>" <%=guild.automod?.muteRole===r.id?'selected':''%>><%= r.name %></option><%})%>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">الرولات المستثناة (مفصولة بفواصل)</label>
+          <input type="text" name="ignoredRoles" class="form-input" value="<%= (guild.automod?.ignoredRoles||[]).join(',') %>" placeholder="Role ID, Role ID..."/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">القنوات المستثناة (مفصولة بفواصل)</label>
+          <input type="text" name="ignoredChannels" class="form-input" value="<%= (guild.automod?.ignoredChannels||[]).join(',') %>" placeholder="Channel ID, Channel ID..."/>
+        </div>
+      </div>
+    </div>
+
+    <% const am = guild.automod || {}; %>
+    <% const punishOpts = ['delete','warn','mute','kick','ban']; %>
+    <% const punishLabels = {delete:'حذف',warn:'تحذير',mute:'كتم',kick:'طرد',ban:'حظر'}; %>
+
+    <!-- Anti Links -->
+    <div class="card">
+      <div class="card-header"><h3>🔗 Anti Links</h3><label class="toggle-switch"><input type="checkbox" name="antiLinksEnabled" <%=am.antiLinks?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">العقوبة</label>
+            <select name="antiLinksPunishment" class="form-select">
+              <%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiLinks?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">قائمة بيضاء (نطاقات)</label>
+            <input type="text" name="antiLinksWhitelist" class="form-input" value="<%= (am.antiLinks?.whitelist||[]).join(',') %>" placeholder="discord.com, google.com"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Invites -->
+    <div class="card">
+      <div class="card-header"><h3>📨 Anti Invites</h3><label class="toggle-switch"><input type="checkbox" name="antiInvitesEnabled" <%=am.antiInvites?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label class="form-label">العقوبة</label>
+          <select name="antiInvitesPunishment" class="form-select">
+            <%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiInvites?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Spam -->
+    <div class="card">
+      <div class="card-header"><h3>💬 Anti Spam</h3><label class="toggle-switch"><input type="checkbox" name="antiSpamEnabled" <%=am.antiSpam?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">عدد الرسائل</label>
+            <input type="number" name="antiSpamMax" value="<%= am.antiSpam?.maxMessages||5 %>" class="form-input" min="2" max="50"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">في (ثواني)</label>
+            <input type="number" name="antiSpamInterval" value="<%= am.antiSpam?.interval||5 %>" class="form-input" min="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">العقوبة</label>
+            <select name="antiSpamPunishment" class="form-select">
+              <%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiSpam?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">مدة الكتم (دقائق)</label>
+            <input type="number" name="antiSpamMuteDuration" value="<%= am.antiSpam?.muteDuration||10 %>" class="form-input" min="1"/>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Bad Words -->
+    <div class="card">
+      <div class="card-header"><h3>🤬 Anti Bad Words</h3><label class="toggle-switch"><input type="checkbox" name="antiBadWordsEnabled" <%=am.antiBadWords?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group" style="flex:2">
+            <label class="form-label">الكلمات المحظورة (فاصلة)</label>
+            <input type="text" name="badWords" class="form-input" value="<%= (am.antiBadWords?.words||[]).join(',') %>" placeholder="كلمة1, كلمة2"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">العقوبة</label>
+            <select name="antiBadWordsPunishment" class="form-select">
+              <%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiBadWords?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Caps -->
+    <div class="card">
+      <div class="card-header"><h3>🔠 Anti Caps</h3><label class="toggle-switch"><input type="checkbox" name="antiCapsEnabled" <%=am.antiCaps?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">نسبة الكابس (%)</label>
+            <input type="number" name="capsThreshold" value="<%= am.antiCaps?.threshold||70 %>" class="form-input" min="10" max="100"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الحد الأدنى للأحرف</label>
+            <input type="number" name="capsMinLength" value="<%= am.antiCaps?.minLength||10 %>" class="form-input" min="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">العقوبة</label>
+            <select name="antiCapsPunishment" class="form-select">
+              <%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiCaps?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Mentions -->
+    <div class="card">
+      <div class="card-header"><h3>📣 Anti Mentions</h3><label class="toggle-switch"><input type="checkbox" name="antiMentionsEnabled" <%=am.antiMentions?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">الحد الأقصى للمنشنات</label>
+            <input type="number" name="maxMentions" value="<%= am.antiMentions?.maxMentions||5 %>" class="form-input" min="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">العقوبة</label>
+            <select name="antiMentionsPunishment" class="form-select">
+              <%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiMentions?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Anti Raid -->
+    <div class="card">
+      <div class="card-header"><h3>⚔️ Anti Raid</h3><label class="toggle-switch"><input type="checkbox" name="antiRaidEnabled" <%=am.antiRaid?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">عدد الانضمامات</label>
+            <input type="number" name="raidJoinThreshold" value="<%= am.antiRaid?.joinThreshold||10 %>" class="form-input" min="2"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">في (ثواني)</label>
+            <input type="number" name="raidJoinInterval" value="<%= am.antiRaid?.joinInterval||10 %>" class="form-input" min="1"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">الإجراء</label>
+            <select name="raidAction" class="form-select">
+              <option value="kick" <%=am.antiRaid?.action==='kick'?'selected':''%>>طرد</option>
+              <option value="ban" <%=am.antiRaid?.action==='ban'?'selected':''%>>حظر</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Others -->
+    <div class="card">
+      <div class="card-header"><h3>⚙️ أدوات إضافية</h3></div>
+      <div class="card-body">
+        <div class="grid-2">
+          <div class="mini-card">
+            <div class="toggle-row"><div><b>😵 Anti Duplicate</b><div class="toggle-sub">منع الرسائل المكررة</div></div><label class="toggle-switch"><input type="checkbox" name="antiDuplicateEnabled" <%=am.antiDuplicate?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+            <div class="form-row" style="margin-top:10px">
+              <div class="form-group"><label class="form-label">الحد</label><input type="number" name="duplicateThreshold" value="<%= am.antiDuplicate?.threshold||3 %>" class="form-input" min="2"/></div>
+              <div class="form-group"><label class="form-label">العقوبة</label><select name="antiDuplicatePunishment" class="form-select"><%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiDuplicate?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%></select></div>
+            </div>
+          </div>
+          <div class="mini-card">
+            <div class="toggle-row"><div><b>😂 Anti Emoji</b><div class="toggle-sub">حد الإيموجيات</div></div><label class="toggle-switch"><input type="checkbox" name="antiEmojiEnabled" <%=am.antiEmoji?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+            <div class="form-row" style="margin-top:10px">
+              <div class="form-group"><label class="form-label">الحد</label><input type="number" name="maxEmojis" value="<%= am.antiEmoji?.maxEmojis||5 %>" class="form-input" min="1"/></div>
+              <div class="form-group"><label class="form-label">العقوبة</label><select name="antiEmojiPunishment" class="form-select"><%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiEmoji?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%></select></div>
+            </div>
+          </div>
+          <div class="mini-card">
+            <div class="toggle-row"><div><b>Z͇͋͑a̸̋ͅl̈͠go Anti Zalgo</b><div class="toggle-sub">منع نص الزالجو</div></div><label class="toggle-switch"><input type="checkbox" name="antiZalgoEnabled" <%=am.antiZalgo?.enabled?'checked':''%>><span class="toggle-slider"></span></label></div>
+            <div class="form-group" style="margin-top:10px"><label class="form-label">العقوبة</label><select name="antiZalgoPunishment" class="form-select"><%punishOpts.forEach(p=>{%><option value="<%= p %>" <%=am.antiZalgo?.punishment===p?'selected':''%>><%= punishLabels[p] %></option><%})%></select></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> حفظ إعدادات AutoMod</button>
+    </div>
+    <div id="msg" class="msg-box" style="display:none"></div>
+    </form>
+  </div>
+</div>
+<script src="/js/app.js"></script>
+<script>
+document.getElementById('settingsForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  showMsg('msg', await saveSettings('<%= guildId %>', new FormData(e.target)));
+});
+</script>
+</body>
+</html>
